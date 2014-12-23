@@ -24,7 +24,7 @@ public class DevourerServlet extends HttpServlet {
         PrintWriter writer = response.getWriter();
         writer.append(new InstanceMetadata().fetch());
         writer.append("\n\n");
-        
+
         String yum = request.getParameter("yum");
         String clear = request.getParameter("clear");
 

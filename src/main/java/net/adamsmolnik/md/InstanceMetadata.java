@@ -18,6 +18,8 @@ public class InstanceMetadata {
             String instanceId = EC2MetadataUtils.getInstanceId();
             sb.append("ec2 instance id: ");
             sb.append(instanceId);
+            sb.append(", availability zone: ");
+            sb.append(EC2MetadataUtils.getAvailabilityZone());
 
             EC2MetadataUtils.getNetworkInterfaces().stream().map(ni -> {
                 return ", network interface: " + ni.getPublicIPv4s() + ", " + ni.getPublicHostname() + ", " + ni.getSubnetIPv4CidrBlock();
