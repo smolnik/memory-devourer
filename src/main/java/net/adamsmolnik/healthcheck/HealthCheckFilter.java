@@ -10,7 +10,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletResponse;
+import net.adamsmolnik.fb.Fibonacci;
 
+/**
+ * @author ASmolnik
+ *
+ */
 @WebFilter("/hc")
 public class HealthCheckFilter implements Filter {
 
@@ -23,7 +28,7 @@ public class HealthCheckFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.setContentType("text/html;charset=UTF-8");
-        resp.getWriter().write("OK " + new Date());
+        resp.getWriter().write("OK " + new Date() + ", fibonacci active forks count = " + Fibonacci.getActiveForksCount());
         resp.flushBuffer();
     }
 

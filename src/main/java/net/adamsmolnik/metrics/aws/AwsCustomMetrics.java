@@ -22,7 +22,7 @@ import com.amazonaws.util.EC2MetadataUtils;
  */
 public class AwsCustomMetrics implements AutoCloseable {
 
-    private ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
     private final AmazonCloudWatch cw = new AmazonCloudWatchClient();
 
