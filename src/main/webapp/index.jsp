@@ -1,4 +1,5 @@
 <!DOCTYPE HTML>
+<%@page import="net.adamsmolnik.md.Result"%>
 <%@page import="java.util.Date"%>
 <%@page import="net.adamsmolnik.md.InstanceMetadata"%>
 <html>
@@ -27,5 +28,24 @@
 	<div id="info" class="border">
 		<%="date: " + new Date()%>
 	</div>
+	<br>
+	<form action="go" method="POST">
+
+		<div>
+			Enter&nbsp;url:&nbsp;<input name="url" type="text" size="80">&nbsp;<input type="submit" value="Send request" size="30">
+			<br>
+			<%
+			    Result result = (Result) request.getAttribute("result");
+			    if (result != null) {
+			%>
+			<br>Status:&nbsp;<b><%=result.getStatus()%></b> for url&nbsp;<%=result.getUrl()%>
+			<br>
+			<textarea cols="100" rows="5" readonly="readonly"><%=result.getHtml()%></textarea>
+			<br>
+			<%
+			    }
+			%>
+		</div>
+	</form>
 </body>
 </html>
