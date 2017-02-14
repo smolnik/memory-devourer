@@ -13,32 +13,32 @@ import javax.servlet.http.HttpServletResponse;
  * @author ASmolnik
  *
  */
-@WebServlet({"/eat"})
+@WebServlet({ "/eat" })
 public class DevourerServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 1453454354354L;
+	private static final long serialVersionUID = 1453454354354L;
 
-    private List<byte[]> devourer = new ArrayList<>();
+	private List<byte[]> devourer = new ArrayList<>();
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        PrintWriter writer = response.getWriter();
-        writer.append(new InstanceMetadata().fetch());
-        writer.append("\n\n");
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		PrintWriter writer = response.getWriter();
+		writer.append(new InstanceMetadata().fetch());
+		writer.append("\n\n");
 
-        String yum = request.getParameter("yum");
-        String clear = request.getParameter("clear");
+		String yum = request.getParameter("yum");
+		String clear = request.getParameter("clear");
 
-        if ((yum != null) && (!"".equals(yum.trim()))) {
-            this.devourer.add(new byte[Integer.valueOf(yum).intValue() * 1024 * 1024]);
-            writer.println("Consumed: " + yum + " MB");
-        }
-        if ("ok".equals(clear)) {
-            this.devourer.clear();
-            System.gc();
-            writer.println("Cleared");
-            System.gc();
-            writer.println("\n After GC freeMemory: " + Runtime.getRuntime().freeMemory());
-        }
-        response.flushBuffer();
-    }
+		if ((yum != null) && (!"".equals(yum.trim()))) {
+			this.devourer.add(new byte[Integer.valueOf(yum).intValue() * 1024 * 1024]);
+			writer.println("Consumed: " + yum + " MB");
+		}
+		if ("ok".equals(clear)) {
+			this.devourer.clear();
+			System.gc();
+			writer.println("Cleared");
+			System.gc();
+			writer.println("\n After GC freeMemory: " + Runtime.getRuntime().freeMemory());
+		}
+		response.flushBuffer();
+	}
 }

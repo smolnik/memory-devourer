@@ -22,52 +22,50 @@ import com.amazonaws.util.EC2MetadataUtils;
  */
 public class AwsCustomMetrics implements AutoCloseable {
 
-    private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 
-    private final AmazonCloudWatch cw = new AmazonCloudWatchClient();
+	private final AmazonCloudWatch cw = new AmazonCloudWatchClient();
 
-    public void launch() {
-        String instanceId = EC2MetadataUtils.getInstanceId();
-        Runtime rt = Runtime.getRuntime();
+	public void launch() {
+		String instanceId = EC2MetadataUtils.getInstanceId();
+		Runtime rt = Runtime.getRuntime();
 
-        ses.scheduleAtFixedRate(
-                () -> {
+		ses.scheduleAtFixedRate(() -> {
 
-                    try {
-                        long memUsed = rt.totalMemory() - rt.freeMemory();
-                        double memUsedPercent = (((double) memUsed) / rt.maxMemory()) * 100.0;
-                        MetricDatum datum = new MetricDatum().withMetricName("JVMMemoryUtilization")
-                                .withDimensions(new Dimension().withName("InstanceId").withValue(instanceId)).withTimestamp(new Date())
-                                .withUnit(StandardUnit.Percent).withValue(memUsedPercent);
+			try {
+				long memUsed = rt.totalMemory() - rt.freeMemory();
+				double memUsedPercent = (((double) memUsed) / rt.maxMemory()) * 100.0;
+				MetricDatum datum = new MetricDatum().withMetricName("JVMMemoryUtilization")
+						.withDimensions(new Dimension().withName("InstanceId").withValue(instanceId)).withTimestamp(new Date())
+						.withUnit(StandardUnit.Percent).withValue(memUsedPercent);
 
-                        PutMetricDataRequest ec2Request = new PutMetricDataRequest().withNamespace("EC2/JVM").withMetricData(datum);
-                        cw.putMetricData(ec2Request);
-                        System.out.println("Metrics sent for ec2: " + ec2Request);
+				PutMetricDataRequest ec2Request = new PutMetricDataRequest().withNamespace("EC2/JVM").withMetricData(datum);
+				cw.putMetricData(ec2Request);
+				System.out.println("Metrics sent for ec2: " + ec2Request);
 
-                        Optional<Tag> tagOptional = new AmazonEC2Client()
-                                .describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId)).getReservations().stream().findFirst()
-                                .get().getInstances().stream().findFirst().get().getTags().stream()
-                                .filter(tag -> "aws:autoscaling:groupName".equals(tag.getKey())).findFirst();
-                        tagOptional.ifPresent(t -> {
-                            MetricDatum asgDatum = new MetricDatum().withMetricName("JVMMemoryUtilization")
-                                    .withDimensions(new Dimension().withName("AutoScalingGroupName").withValue(t.getValue()))
-                                    .withTimestamp(new Date()).withUnit(StandardUnit.Percent).withValue(memUsedPercent);
+				Optional<Tag> tagOptional = new AmazonEC2Client().describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId))
+						.getReservations().stream().findFirst().get().getInstances().stream().findFirst().get().getTags().stream()
+						.filter(tag -> "aws:autoscaling:groupName".equals(tag.getKey())).findFirst();
+				tagOptional.ifPresent(t -> {
+					MetricDatum asgDatum = new MetricDatum().withMetricName("JVMMemoryUtilization")
+							.withDimensions(new Dimension().withName("AutoScalingGroupName").withValue(t.getValue())).withTimestamp(new Date())
+							.withUnit(StandardUnit.Percent).withValue(memUsedPercent);
 
-                            PutMetricDataRequest asgRequest = new PutMetricDataRequest().withNamespace("ASG/JVM").withMetricData(asgDatum);
-                            cw.putMetricData(asgRequest);
-                            System.out.println("Metrics sent for asg: " + asgRequest);
-                        });
+					PutMetricDataRequest asgRequest = new PutMetricDataRequest().withNamespace("ASG/JVM").withMetricData(asgDatum);
+					cw.putMetricData(asgRequest);
+					System.out.println("Metrics sent for asg: " + asgRequest);
+				});
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-                }, 0, 15, TimeUnit.SECONDS);
+		}, 0, 5, TimeUnit.SECONDS);
 
-    }
+	}
 
-    public void close() {
-        ses.shutdownNow();
-    }
+	public void close() {
+		ses.shutdownNow();
+	}
 
 }

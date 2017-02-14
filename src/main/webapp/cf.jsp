@@ -7,7 +7,7 @@
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
     httpResponse.setHeader("Pragma", "no-cache"); // HTTP 1.0
-    httpResponse.setDateHeader("Expires", 0); // Proxies.
+    httpResponse.setHeader("Cache-Control", "max-age=0");
 %>
 <head>
 <title>Memory Devourer</title>
@@ -16,9 +16,9 @@
 </head>
 <body>
 	<%
-	    String name = request.getParameter("name");
+	    String i = request.getParameter("i");
 	%>
-	Hello!&nbsp;<%=name == null ? "Anonymous" : name%>
+	NO cache!&nbsp;<%= i == null ? "param 'i' == null :( " : "param 'i' is NOT null and i = " + i + " :)"%>
 	<br>
 	<br> Who am I? Take a look at:
 	<br>
@@ -31,25 +31,7 @@
 	<div id="info" class="border">
 		<%="client IP: " + request.getRemoteAddr()%>
 	</div>
-	
+	<img src="valencia.jpg" />
 	<br>
-	<form action="go" method="POST">
-
-		<div>
-			Enter&nbsp;url:&nbsp;<input name="url" type="text" size="80">&nbsp;<input type="submit" value="Send request" size="30">
-			<br>
-			<%
-			    Result result = (Result) request.getAttribute("result");
-			    if (result != null) {
-			%>
-			<br>Status:&nbsp;<b><%=result.getStatus()%></b> for url&nbsp;<%=result.getUrl()%>
-			<br>
-			<textarea cols="100" rows="5" readonly="readonly"><%=result.getHtml()%></textarea>
-			<br>
-			<%
-			    }
-			%>
-		</div>
-	</form>
 </body>
 </html>
